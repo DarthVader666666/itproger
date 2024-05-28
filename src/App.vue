@@ -1,34 +1,104 @@
 <template>
-    <h3>{{info}}</h3>
-    <p>{{someInfo}}</p>
+    <input type="text" v-model="userName" placeholder="Name">
+    <input type="password" v-model="userPass" placeholder="Password">
+    <input type="email" v-model="userEmail" placeholder="Email">
 
-    <button type="button" @click="userData('Some new')">Send</button>
+    <p className="error">{{ error }}</p>
+    <button type="button" @click="sendData()">Send</button>
+
+    <div v-if="users.length == 0" className="user">
+      No users in stock
+    </div>
+    <div v-else-if="users.length > 1" className="user">
+      Users count: {{ this.users.length }}
+    </div>
+    <div v-else className="user">
+      One user in stock
+    </div>
+
+    <div v-for="(el, index) in users" :key="index" className="user">
+        <h3>{{ el.name }}</h3>
+        <p>{{ el.email }} - <b>{{ el.pass }}</b></p>
+    </div>
 </template>
 
-<style scoped>
-  h3 {
-    font-weight: lighter;
-  }
-
-  p {
-    color:red;
-  }
-
-</style>
 <script>
   export default{
-    data(){
+    data() {
       return {
-        info:'Title',
-        someInfo: 'Anons of message'
+        users:[],
+        error:'',
+        userName:'',
+        userPass:'',
+        userEmail:''
       }
     },
     methods: {
-      userData(word = 'New Test')
-      {
-        this.info = word;
-      }
+      sendData() {
+        if(this.userName == '') {
+            this.error = "Please, enter Name";
+            return;
+        }
+        else if(this.userEmail == '')
+        {
+            this.error = "Please, enter Email";
+            return;
+        }
+        else if(this.userPass == '')
+        {
+            this.error = "Please, enter Password";
+            return;
+        }
 
+        this.error = '';
+
+        this.users.push(
+          {
+            name: this.userName,
+            pass: this.userPass,
+            email: this.userPass
+          })
+      }
     }
   }
 </script>
+
+<style scoped>
+  input {
+    display: block;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border: 1px solid silver;
+    outline: none;
+    padding: 10px 15px;
+    background: #fafafa;
+    color: #333;
+  }
+
+  button {
+    border: 0;
+    border-radius: 5px;
+    outline: none;
+    padding: 10px 15px;
+    background: #6cd670;
+    color: #167f3d;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 500ms ease;
+  }
+
+button:hover {
+  transform: translateY(-5px);
+}
+
+.user {
+  width: 500px;
+  margin-top: 20px;
+  border: 1px solid silver;
+  background: #e3e3e3;
+  color: #222;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+</style>
