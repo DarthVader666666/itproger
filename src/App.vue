@@ -16,14 +16,17 @@
       One user in stock
     </div>
 
-    <div v-for="(el, index) in users" :key="index" className="user">
-        <h3>{{ el.name }}</h3>
-        <p>{{ el.email }} - <b>{{ el.pass }}</b></p>
-    </div>
+    <User v-for="(el, index) in users" :key="index" :user="el" :index="index" :deleteUser="deleteUser"></User>
+
+    
 </template>
 
 <script>
+  import User from './components/User.vue'
+
   export default{
+    components: {User},
+
     data() {
       return {
         users:[],
@@ -58,6 +61,11 @@
             pass: this.userPass,
             email: this.userPass
           })
+      },
+
+      deleteUser(index)
+      {
+        this.users.splice(index, 1);
       }
     }
   }
@@ -91,14 +99,6 @@ button:hover {
   transform: translateY(-5px);
 }
 
-.user {
-  width: 500px;
-  margin-top: 20px;
-  border: 1px solid silver;
-  background: #e3e3e3;
-  color: #222;
-  padding: 20px;
-  border-radius: 5px;
-}
+
 
 </style>
