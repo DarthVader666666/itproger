@@ -1,104 +1,134 @@
 <template>
-    <input type="text" v-model="userName" placeholder="Name">
-    <input type="password" v-model="userPass" placeholder="Password">
-    <input type="email" v-model="userEmail" placeholder="Email">
+  <div class="wrapper">
+    <h1>Weather App</h1>
+    <p>Find out the weather in {{city == '' ? "your town" : cityName }}</p>
+    <input type="text" v-model="city" placeholder="Enter town">
 
-    <p className="error">{{ error }}</p>
-    <button type="button" @click="sendData()">Send</button>
+    <button v-if="city != ''" @click="getWeather()">Get weather</button>
+    <button disabled v-else>Enter town name</button>
 
-    <div v-if="users.length == 0" className="user">
-      No users in stock
+    <p class="error">{{ error }}</p>
+
+    <div v-if="info != null">
+      <p>{{ showTemp }} C</p>
+      <p>{{ showFeelsLike }} C</p>
+      <p>{{ showMinTemp }} C</p>
+      <p>{{ showMaxTemp }} C</p>
     </div>
-    <div v-else-if="users.length > 1" className="user">
-      Users count: {{ this.users.length }}
-    </div>
-    <div v-else className="user">
-      One user in stock
-    </div>
 
-    <User v-for="(el, index) in users" :key="index" :user="el" :index="index" :deleteUser="deleteUser"></User>
+  </div>
 
-    
+  
 </template>
 
 <script>
-  import User from './components/User.vue'
+import axios from 'axios';
 
-  export default{
-    components: {User},
-
-    data() {
-      return {
-        users:[],
-        error:'',
-        userName:'',
-        userPass:'',
-        userEmail:''
-      }
+export default {
+  data() {
+    return {
+      city: '',
+      error:'',
+      info: null
+    }
+  },
+  computed: {
+    cityName() {
+      return '"' + this.city + '"'
     },
-    methods: {
-      sendData() {
-        if(this.userName == '') {
-            this.error = "Please, enter Name";
-            return;
-        }
-        else if(this.userEmail == '')
-        {
-            this.error = "Please, enter Email";
-            return;
-        }
-        else if(this.userPass == '')
-        {
-            this.error = "Please, enter Password";
-            return;
+    showTemp() {
+      return "Temperature: " + this.info.main.temp;
+    },
+    showFeelsLike() {
+      return "Feels like: " + this.info["main"]["feels_like"];
+    },
+    showMinTemp() {
+      return "Minimal temp: " + this.info["main"]["temp_min"];
+    },
+    showMaxTemp() {
+      return "Maximal temp: " + this.info["main"]["temp_max"];
+    },
+  },
+  methods: {
+    getWeather()
+    {
+        if(this.city.trim().length < 2) {
+          this.error = "More than one symbol required."
+          return;
         }
 
         this.error = '';
 
-        this.users.push(
-          {
-            name: this.userName,
-            pass: this.userPass,
-            email: this.userPass
+        axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&appid=15a3b5b2354cfaa24d6470e77f466a49`)
+          .catch(error => {
+            if(error.code = 'ERR_BAD_REQUEST')
+            {
+              this.info = null;
+              alert('City not found');
+            }
           })
-      },
-
-      deleteUser(index)
-      {
-        this.users.splice(index, 1);
-      }
+          .then(res => this.info = res.data);
     }
   }
+}
+ 
 </script>
 
 <style scoped>
-  input {
-    display: block;
-    margin-bottom: 10px;
-    border-radius: 3px;
-    border: 1px solid silver;
-    outline: none;
-    padding: 10px 15px;
-    background: #fafafa;
-    color: #333;
+  .wrapper{
+    width: 900px;
+    height: 500px;
+    border-radius: 50px;
+    padding:20px;
+    background: #1f0f24;
+    text-align: center;
+    color: white;
   }
 
-  button {
-    border: 0;
-    border-radius: 5px;
+  .wrapper h1{
+    margin-top:50px;
+  }
+
+  .wrapper p{
+    margin-top:20px;
+   }
+
+  .wrapper input {
+    margin-top: 30px;
+    background-color: transparent;
+    border:0;
+    border-bottom: 2px solid #110813;
+    color: #fcfcfc;
+    font-size: 14px;
+    padding: 5px 8px;
     outline: none;
+  }
+
+  .wrapper input:focus {
+    border-bottom-color: #6e2d7d;
+  }
+
+  .wrapper button {
+    background: #e3bc4b;
+    color: #fff;
+    border-radius: 10px;
+    border: 2px solid #b99935;
     padding: 10px 15px;
-    background: #6cd670;
-    color: #167f3d;
-    font-weight: bold;
+    margin-left: 20px;
     cursor: pointer;
     transition: transform 500ms ease;
   }
 
-button:hover {
-  transform: translateY(-5px);
-}
+  .wrapper button:hover{
+    transform: scale(1.1) translateY(-5px);
+  }
 
+  .wrapper button:disabled{
+    background-color: #746027;
+    cursor: not-allowed;
+  }
 
-
+  .error {
+    color: rgb(147, 35, 35)
+  }
 </style>
